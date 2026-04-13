@@ -62,7 +62,7 @@
         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
             <h2 class="text-lg font-semibold text-slate-800 mb-4">Request Status Distribution</h2>
             <div class="relative h-64 w-full">
-                <canvas id="statusChart"></canvas>
+                <canvas id="statusChart" data-pending="{{ pending }}" data-in-progress="{{ in_progress }}" data-resolved="{{ resolved }}"></canvas>
             </div>
         </div>
         
@@ -89,14 +89,20 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const ctx = document.getElementById('statusChart').getContext('2d');
+        const canvas = document.getElementById('statusChart');
+        const ctx = canvas.getContext('2d');
+        
+        const pending = parseInt(canvas.dataset.pending) || 0;
+        const inProgress = parseInt(canvas.dataset.inProgress) || 0;
+        const resolved = parseInt(canvas.dataset.resolved) || 0;
+
         const statusChart = new Chart(ctx, {
             type: 'doughnut',
             data: {
                 labels: ['Pending', 'In Progress', 'Resolved'],
                 datasets: [{
                     label: '# of Tickets',
-                    data: [{{ pending }}, {{ in_progress }}, {{ resolved }}],
+                    data: [pending, inProgress, resolved],
                     backgroundColor: [
                         'rgba(245, 158, 11, 0.8)', // amber
                         'rgba(99, 102, 241, 0.8)', // indigo

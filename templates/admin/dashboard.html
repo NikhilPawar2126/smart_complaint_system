@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Smart Complaint System{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-800">Administrator Console</h1>
+        <p class="text-slate-500">System-wide overview and analytics.</p>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total Users</p>
+                    <p class="text-3xl font-bold text-slate-800 mt-1">{{ total_users }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-users"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm bg-gradient-to-br from-amber-50 to-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-amber-600">Pending Issues</p>
+                    <p class="text-3xl font-bold text-amber-700 mt-1">{{ pending }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-clock"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm bg-gradient-to-br from-indigo-50 to-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-indigo-600">In Progress</p>
+                    <p class="text-3xl font-bold text-indigo-700 mt-1">{{ in_progress }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-gears w-full fa-spin-pulse"></i>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm bg-gradient-to-br from-emerald-50 to-white">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-emerald-600">Resolved</p>
+                    <p class="text-3xl font-bold text-emerald-700 mt-1">{{ resolved }}</p>
+                </div>
+                <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4">Request Status Distribution</h2>
+            <div class="relative h-64 w-full">
+                <canvas id="statusChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col justify-center items-center">
+            <h2 class="text-lg font-semibold text-slate-800 mb-4 self-start">Quick Actions</h2>
+            <div class="flex-grow flex items-center w-full">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                    <a href="{{ url_for('admin.complaints') }}" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-blue-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition text-blue-600 group">
+                        <i class="fa-solid fa-list-check text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium">Manage All Tickets</span>
+                    </a>
+                    <a href="{{ url_for('admin.complaints', status='Pending') }}" class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-amber-200 rounded-xl hover:border-amber-500 hover:bg-amber-50 transition text-amber-600 group">
+                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-3 group-hover:scale-110 transition-transform"></i>
+                        <span class="font-medium">View Pending</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Pending', 'In Progress', 'Resolved'],
+                datasets: [{
+                    label: '# of Tickets',
+                    data: [{{ pending }}, {{ in_progress }}, {{ resolved }}],
+                    backgroundColor: [
+                        'rgba(245, 158, 11, 0.8)', // amber
+                        'rgba(99, 102, 241, 0.8)', // indigo
+                        'rgba(16, 185, 129, 0.8)'  // emerald
+                    ],
+                    borderColor: [
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(99, 102, 241, 1)',
+                        'rgba(16, 185, 129, 1)'
+                    ],
+                    borderWidth: 2,
+                    hoverOffset: 4,
+                    cutout: '70%'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            font: {
+                                family: "'Inter', sans-serif",
+                                size: 13
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

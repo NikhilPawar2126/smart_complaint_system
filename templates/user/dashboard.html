@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block title %}User Dashboard - Smart Complaint System{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+    <div class="mb-8">
+        <h1 class="text-2xl font-bold text-slate-800">Welcome, {{ current_user.name }}</h1>
+        <p class="text-slate-500">Here's an overview of your submitted tickets.</p>
+    </div>
+
+    <!-- Stats grid -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mr-4">
+                    <i class="fa-solid fa-list"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Total</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ total }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mr-4">
+                    <i class="fa-regular fa-clock"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Pending</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ pending }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl mr-4">
+                    <i class="fa-solid fa-spinner fa-spin-pulse"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-500">In Progress</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ in_progress }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm hover:shadow-md transition">
+            <div class="flex items-center">
+                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl mr-4">
+                    <i class="fa-solid fa-check-double"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-medium text-slate-500">Resolved</p>
+                    <p class="text-2xl font-bold text-slate-800">{{ resolved }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions and Recent -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                <div class="px-6 py-5 border-b border-slate-50 flex justify-between items-center">
+                    <h2 class="text-lg font-semibold text-slate-800">Recent Complaints</h2>
+                    <a href="{{ url_for('user.history') }}" class="text-sm font-medium text-blue-600 hover:text-blue-500">View All</a>
+                </div>
+                
+                {% if recent_complaints %}
+                    <div class="divide-y divide-slate-50">
+                        {% for complaint in recent_complaints %}
+                        <div class="p-6 hover:bg-slate-50 transition">
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1">
+                                    <div class="flex items-center gap-3 mb-1">
+                                        <h3 class="font-medium text-slate-900">{{ complaint.title }}</h3>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">
+                                            {{ complaint.category }}
+                                        </span>
+                                    </div>
+                                    <p class="text-sm text-slate-500 line-clamp-2 mt-1">{{ complaint.description }}</p>
+                                    <p class="text-xs text-slate-400 mt-2"><i class="fa-regular fa-clock mr-1"></i> {{ complaint.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                                <div class="ml-4 flex-shrink-0">
+                                    {% if complaint.status == 'Pending' %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                            <i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i> Pending
+                                        </span>
+                                    {% elif complaint.status == 'In Progress' %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+                                            <i class="fa-solid fa-circle text-[8px] mr-1.5 animate-pulse"></i> In Progress
+                                        </span>
+                                    {% else %}
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                            <i class="fa-solid fa-check mr-1.5"></i> Resolved
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="p-12 text-center text-slate-500 flex flex-col items-center">
+                        <i class="fa-regular fa-folder-open text-4xl mb-3 text-slate-300"></i>
+                        <p>You haven't submitted any complaints yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div>
+            <div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-6 text-white shadow-lg shadow-blue-200">
+                <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-xl mb-4 backdrop-blur-sm">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </div>
+                <h3 class="text-lg font-bold mb-2">Need help?</h3>
+                <p class="text-blue-100 text-sm mb-6 leading-relaxed">Submit a new complaint or service request to our administration team instantly.</p>
+                <a href="{{ url_for('user.submit_complaint') }}" class="block w-full text-center px-4 py-3 bg-white text-blue-700 font-semibold rounded-xl hover:bg-slate-50 transition shadow-sm">
+                    New Ticket
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

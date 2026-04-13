@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Smart Complaint System{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#1e293b',
+                        accent: '#60a5fa',
+                        background: '#f8fafc',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+    <nav class="bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-100 z-50 sticky top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <a href="{{ url_for('index') }}" class="flex items-center gap-2 text-xl font-bold text-slate-800 hover:text-primary transition-colors">
+                        <i class="fa-solid fa-layer-group text-primary"></i>
+                        SmartFlow
+                    </a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.role == 'admin' %}
+                            <a href="{{ url_for('admin.dashboard') }}" class="text-slate-600 hover:text-primary font-medium transition">Dashboard</a>
+                            <a href="{{ url_for('admin.complaints') }}" class="text-slate-600 hover:text-primary font-medium transition">Complaints</a>
+                        {% else %}
+                            <a href="{{ url_for('user.dashboard') }}" class="text-slate-600 hover:text-primary font-medium transition">Dashboard</a>
+                            <a href="{{ url_for('user.history') }}" class="text-slate-600 hover:text-primary font-medium transition">History</a>
+                        {% endif %}
+                        <a href="{{ url_for('auth.logout') }}" class="ml-4 px-4 py-2 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium transition">Logout</a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}" class="text-slate-600 hover:text-primary font-medium transition">Login</a>
+                        <a href="{{ url_for('auth.register') }}" class="ml-4 px-4 py-2 rounded-lg bg-primary text-white hover:bg-blue-600 shadow-md shadow-blue-200 font-medium transition transform hover:-translate-y-0.5">Register</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex flex-col relative w-full">
+        <!-- Floating alerts -->
+        <div class="absolute top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-2xl px-4">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="p-4 mb-4 rounded-xl shadow-lg flex items-center shadow-sm animate-fade-in-down {% if category == 'error' %}bg-red-50 text-red-800 border border-red-200{% else %}bg-green-50 text-green-800 border border-green-200{% endif %}">
+                            <i class="fa-solid {% if category == 'error' %}fa-circle-exclamation{% else %}fa-circle-check{% endif %} mr-3 text-lg"></i>
+                            <span class="font-medium">{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+        </div>
+        
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="bg-white border-t border-gray-100 mt-auto">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center text-sm text-slate-500">
+            <div>&copy; 2026 SmartFlow System. All rights reserved.</div>
+            <div class="mt-2 sm:mt-0 flex gap-4">
+                <a href="#" class="hover:text-primary transition-colors">Privacy Policy</a>
+                <a href="#" class="hover:text-primary transition-colors">Terms of Service</a>
+            </div>
+        </div>
+    </footer>
+    
+    <style>
+        @keyframes fadeInDown {
+            0% { opacity: 0; transform: translate3d(0, -20px, 0); }
+            100% { opacity: 1; transform: translate3d(0, 0, 0); }
+        }
+        .animate-fade-in-down {
+            animation: fadeInDown 0.4s ease-out forwards;
+        }
+    </style>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
